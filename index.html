@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#315c46">
+<title>Chemie-Quiz – Klasse 7</title>
+<style>
+  :root{
+    --bg:#f4f2ea;
+    --card:#ffffff;
+    --ink:#1f2a24;
+    --muted:#627069;
+    --accent:#315c46;
+    --accent2:#e9f0eb;
+    --ok:#1e7a46;
+    --bad:#b73535;
+    --line:#d9ded9;
+    --shadow:0 10px 30px rgba(28,44,35,.10);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  body{padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+  .wrap{max-width:720px;margin:auto}
+  header{padding:14px 4px 8px}
+  h1{font-size:clamp(1.55rem,6vw,2.2rem);line-height:1.05;margin:.2rem 0}
+  .sub{color:var(--muted);font-size:.98rem;margin:.25rem 0 0}
+  .panel,.quiz-card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+  .panel{padding:18px;margin:12px 0}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  button{
+    font:inherit;border:0;border-radius:14px;padding:13px 16px;cursor:pointer;
+    touch-action:manipulation;font-weight:700
+  }
+  button.primary{background:var(--accent);color:#fff;flex:1}
+  button.secondary{background:var(--accent2);color:var(--accent)}
+  button:disabled{opacity:.55;cursor:default}
+  label{display:block;font-weight:700;margin:10px 0 6px}
+  select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit}
+  .hidden{display:none!important}
+  .topline{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:12px 2px 8px;font-weight:700}
+  .progress{height:10px;background:#dfe5e0;border-radius:999px;overflow:hidden}
+  .bar{height:100%;width:0;background:var(--accent);transition:width .25s ease}
+  .quiz-card{padding:18px;margin-top:12px}
+  .topic{display:inline-block;background:var(--accent2);color:var(--accent);padding:6px 10px;border-radius:999px;font-size:.82rem;font-weight:800}
+  .question{font-size:clamp(1.22rem,4.8vw,1.65rem);line-height:1.28;margin:16px 0}
+  .visual{margin:8px 0 16px;border-radius:14px;background:#fafbf9;border:1px solid var(--line);padding:8px}
+  .answers{display:grid;gap:10px}
+  .answer{
+    width:100%;text-align:left;background:#f7f8f6;color:var(--ink);border:2px solid transparent;
+    padding:15px;min-height:56px
+  }
+  .answer:hover{border-color:#a9b8ae}
+  .answer.correct{background:#e8f6ed;border-color:var(--ok);color:#155b34}
+  .answer.wrong{background:#fdecec;border-color:var(--bad);color:#8f2424}
+  .feedback{margin-top:14px;padding:13px 14px;border-radius:13px;font-weight:700;line-height:1.4}
+  .feedback.ok{background:#e8f6ed;color:#155b34}
+  .feedback.bad{background:#fdecec;color:#8f2424}
+  .explain{display:block;font-weight:500;margin-top:4px}
+  .next{width:100%;margin-top:12px;background:var(--accent);color:#fff}
+  .result{text-align:center;padding:24px 18px}
+  .scorebig{font-size:3.2rem;font-weight:900;color:var(--accent);margin:10px 0 0}
+  .result h2{margin:.3rem 0}
+  .mistakes{text-align:left;margin-top:18px}
+  .mistake{padding:12px 0;border-top:1px solid var(--line)}
+  .mistake b{display:block;margin-bottom:4px}
+  .tiny{font-size:.84rem;color:var(--muted)}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:16px 4px 28px}
+  svg{width:100%;height:auto;max-height:260px}
+  @media (min-width:600px){
+    body{padding-left:22px;padding-right:22px}
+    .quiz-card,.panel{padding:24px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Chemie-Quiz</h1>
+    <p class="sub">Klasse 7 · Stoffe, Stoffgemische, Teilchen und Aggregatzustände</p>
+  </header>
+
+  <section id="start" class="panel">
+    <p><strong>So geht’s:</strong> Wähle bei jeder Frage eine von drei Antworten. Danach bekommst du sofort eine Rückmeldung.</p>
+    <label for="count">Wie viele Fragen?</label>
+    <select id="count">
+      <option value="10">10 Fragen – kurzer Lernblock</option>
+      <option value="15">15 Fragen</option>
+      <option value="22">Alle 22 Fragen</option>
+    </select>
+    <div class="row" style="margin-top:14px">
+      <button class="primary" id="startBtn">Quiz starten</button>
+    </div>
+    <p class="tiny">Die Reihenfolge der Fragen und Antworten wird jedes Mal neu gemischt. Die Seite funktioniert auch ohne Internet.</p>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="topline">
+      <span id="counter">Frage 1 von 10</span>
+      <span id="score">0 Punkte</span>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+
+    <article class="quiz-card">
+      <span class="topic" id="topic"></span>
+      <div class="question" id="question"></div>
+      <div class="visual hidden" id="visual"></div>
+      <div class="answers" id="answers"></div>
+      <div id="feedback" class="feedback hidden"></div>
+      <button id="nextBtn" class="next hidden">Nächste Frage</button>
+    </article>
+  </section>
+
+  <section id="result" class="panel result hidden">
+    <h2>Geschafft!</h2>
+    <div class="scorebig" id="finalScore"></div>
+    <p id="finalText"></p>
+    <div id="mistakes" class="mistakes"></div>
+    <div class="row" style="margin-top:18px">
+      <button class="primary" id="againBtn">Noch einmal</button>
+    </div>
+  </section>
+
+  <footer>Ein Lernquiz auf Grundlage des Unterrichtsmaterials.</footer>
+</div>
+
+<script>
+const visuals = {
+  phase: `
+  <svg viewBox="0 0 660 250" role="img" aria-label="Aggregatzustände und Umwandlungen">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#315c46"/></marker>
+    </defs>
+    <rect x="25" y="88" width="150" height="78" rx="18" fill="#e9f0eb" stroke="#315c46" stroke-width="2"/>
+    <rect x="255" y="88" width="150" height="78" rx="18" fill="#e9f0eb" stroke="#315c46" stroke-width="2"/>
+    <rect x="485" y="88" width="150" height="78" rx="18" fill="#e9f0eb" stroke="#315c46" stroke-width="2"/>
+    <text x="100" y="135" text-anchor="middle" font-size="24" font-weight="700">fest</text>
+    <text x="330" y="135" text-anchor="middle" font-size="24" font-weight="700">flüssig</text>
+    <text x="560" y="135" text-anchor="middle" font-size="24" font-weight="700">gasförmig</text>
+    <path d="M175 105 H250" stroke="#315c46" stroke-width="3" marker-end="url(#arr)"/>
+    <text x="212" y="88" text-anchor="middle" font-size="17">Schmelzen</text>
+    <path d="M255 150 H180" stroke="#315c46" stroke-width="3" marker-end="url(#arr)"/>
+    <text x="217" y="185" text-anchor="middle" font-size="17">Erstarren</text>
+    <path d="M405 105 H480" stroke="#315c46" stroke-width="3" marker-end="url(#arr)"/>
+    <text x="442" y="88" text-anchor="middle" font-size="17">Verdampfen</text>
+    <path d="M485 150 H410" stroke="#315c46" stroke-width="3" marker-end="url(#arr)"/>
+    <text x="447" y="185" text-anchor="middle" font-size="17">Kondensieren</text>
+  </svg>`,
+  filter: `
+  <svg viewBox="0 0 620 300" role="img" aria-label="Filtration">
+    <path d="M220 45 L400 45 L350 145 L350 215 L270 215 L270 145 Z" fill="#fff" stroke="#315c46" stroke-width="4"/>
+    <path d="M245 80 L375 80 L345 140 L275 140 Z" fill="#d7ddd8" stroke="#315c46" stroke-width="2"/>
+    <circle cx="290" cy="102" r="9" fill="#66756b"/><circle cx="320" cy="110" r="9" fill="#66756b"/><circle cx="345" cy="98" r="9" fill="#66756b"/>
+    <path d="M310 215 L310 238" stroke="#315c46" stroke-width="4"/>
+    <path d="M248 242 Q310 225 372 242 L390 285 L230 285 Z" fill="#e8f1ef" stroke="#315c46" stroke-width="4"/>
+    <text x="430" y="105" font-size="20" font-weight="700">Rückstand</text>
+    <line x1="420" y1="110" x2="350" y2="110" stroke="#315c46" stroke-width="2"/>
+    <text x="420" y="265" font-size="20" font-weight="700">Filtrat</text>
+    <line x1="410" y1="258" x2="370" y2="258" stroke="#315c46" stroke-width="2"/>
+  </svg>`,
+  candle: `
+  <svg viewBox="0 0 620 330" role="img" aria-label="Aggregatzustände bei einer Kerze">
+    <rect x="220" y="120" width="180" height="185" rx="12" fill="#f6f0d8" stroke="#315c46" stroke-width="4"/>
+    <ellipse cx="310" cy="120" rx="90" ry="18" fill="#e6d9a5" stroke="#315c46" stroke-width="4"/>
+    <path d="M310 125 C285 150 285 178 310 184 C335 178 335 150 310 125" fill="#e6d9a5" stroke="#315c46" stroke-width="3"/>
+    <line x1="310" y1="125" x2="310" y2="92" stroke="#453c30" stroke-width="7"/>
+    <path d="M310 18 C270 62 288 105 310 108 C335 103 352 62 310 18" fill="#f4c64e" stroke="#315c46" stroke-width="3"/>
+    <text x="30" y="265" font-size="20" font-weight="700">fest: Kerzenkörper</text>
+    <line x1="185" y1="260" x2="230" y2="245" stroke="#315c46" stroke-width="2"/>
+    <text x="405" y="165" font-size="20" font-weight="700">flüssig: Wachs</text>
+    <line x1="405" y1="170" x2="340" y2="155" stroke="#315c46" stroke-width="2"/>
+    <text x="370" y="55" font-size="20" font-weight="700">gasförmig:</text>
+    <text x="370" y="80" font-size="20" font-weight="700">Wachsdampf</text>
+    <line x1="365" y1="75" x2="335" y2="72" stroke="#315c46" stroke-width="2"/>
+  </svg>`
+};
+
+const questions = [
+  {t:"Chemische Reaktion", q:"Was geschieht bei einer chemischen Reaktion?", a:"Aus Ausgangsstoffen entstehen neue Stoffe mit anderen Eigenschaften.", w:["Ein Stoff ändert nur seine Form, bleibt aber immer derselbe.","Alle Stoffe verschwinden vollständig."], e:"Ausgangsstoffe heißen Edukte, die neuen Stoffe Reaktionsprodukte."},
+  {t:"Chemische Reaktion", q:"Ergänze: Eisen + Schwefel → …", a:"Eisensulfid", w:["Silbersulfid","Eisenoxid"], e:"Eisen und Schwefel reagieren zu der Verbindung Eisensulfid."},
+  {t:"Stoffumwandlung", q:"Wasser kochen: Liegt eine Stoffumwandlung vor?", a:"Nein, Wasser bleibt Wasser. Nur der Aggregatzustand ändert sich.", w:["Ja, es entsteht der neue Stoff Wasserdampf.","Ja, weil das Wasser heiß wird."], e:"Flüssiges Wasser und Wasserdampf sind derselbe Stoff."},
+  {t:"Stoffumwandlung", q:"Eier braten: Liegt eine Stoffumwandlung vor?", a:"Ja, es entstehen Stoffe mit neuen Eigenschaften.", w:["Nein, das Ei wird nur wärmer.","Nein, weil es weiterhin Ei heißt."], e:"Die Veränderung lässt sich nicht einfach rückgängig machen."},
+  {t:"Stoffe einteilen", q:"Wie werden alle Stoffe zuerst eingeteilt?", a:"In Reinstoffe und Stoffgemische.", w:["In feste und weiche Stoffe.","In Elemente und Flüssigkeiten."], e:"Reinstoffe bestehen aus einer Stoffart, Stoffgemische aus mehreren Reinstoffen."},
+  {t:"Reinstoffe", q:"Was ist ein Reinstoff?", a:"Ein Stoff, der nur aus einer Stoffart besteht.", w:["Ein Stoff, der immer durchsichtig ist.","Ein Stoff, der aus vielen sichtbaren Bestandteilen besteht."], e:"Reinstoffe besitzen typische messbare Eigenschaften."},
+  {t:"Elemente und Verbindungen", q:"Welche Zuordnung ist richtig?", a:"Eisen und Schwefel sind Elemente; Eisensulfid und Silbersulfid sind Verbindungen.", w:["Alle vier Stoffe sind Elemente.","Eisen und Eisensulfid sind Elemente; Schwefel und Silbersulfid sind Verbindungen."], e:"Verbindungen bestehen aus mehreren Elementen."},
+  {t:"Elemente und Verbindungen", q:"Was ist der Unterschied zwischen Element und Verbindung?", a:"Elemente lassen sich chemisch nicht weiter zerlegen, Verbindungen schon.", w:["Verbindungen sind immer flüssig, Elemente immer fest.","Elemente sind Gemische, Verbindungen sind Reinstoffe."], e:"Eine Verbindung kann chemisch in ihre Elemente zerlegt werden."},
+  {t:"Trennverfahren", q:"Was bleibt beim Filtrieren im Filter und was läuft hindurch?", a:"Der Rückstand bleibt im Filter, das Filtrat läuft hindurch.", w:["Das Filtrat bleibt im Filter, der Rückstand läuft hindurch.","Alles bleibt im Filter."], e:"Der Filter hält größere feste Teilchen zurück.", v:"filter"},
+  {t:"Trennverfahren", q:"Was bedeutet Sedimentieren?", a:"Schwere Bestandteile sinken ab und bilden einen Bodensatz.", w:["Eine Flüssigkeit wird gekocht.","Ein Stoff wird mit einem Magneten herausgezogen."], e:"Nach dem Absetzen kann die Flüssigkeit vorsichtig abgegossen werden."},
+  {t:"Trennverfahren", q:"Was bedeutet Dekantieren?", a:"Die Flüssigkeit über einem Bodensatz wird vorsichtig abgegossen.", w:["Ein Gemisch wird durch einen Filter gegossen.","Eine Flüssigkeit wird vollständig verdampft."], e:"Der Bodensatz soll dabei möglichst im Gefäß bleiben."},
+  {t:"Trennverfahren", q:"Wie trennt man Salz aus Salzwasser?", a:"Durch Eindampfen: Wasser verdampft, Salz bleibt zurück.", w:["Durch Filtrieren: Salz bleibt im Filter.","Durch Sedimentieren: Salz sinkt sofort zu Boden."], e:"Gelöstes Salz passt durch einen Filter und muss deshalb eingedampft werden."},
+  {t:"Stoffgemische", q:"Ist Milch ein Reinstoff oder ein Stoffgemisch?", a:"Milch ist ein Stoffgemisch.", w:["Milch ist ein Element.","Milch ist ein Reinstoff."], e:"Milch enthält mehrere Stoffe, zum Beispiel Wasser, Fett und Eiweiß."},
+  {t:"Stoffgemische", q:"Was ist der Unterschied zwischen Zitronenlimonade und Orangensaft mit Fruchtfleisch?", a:"Limonade ist eine Lösung; Orangensaft mit Fruchtfleisch ist eine Suspension.", w:["Beide sind Reinstoffe.","Limonade ist ein Element; Orangensaft ist eine Verbindung."], e:"In der Lösung sind die Bestandteile nicht sichtbar. In der Suspension kann sich Fruchtfleisch absetzen."},
+  {t:"Aggregatzustände", q:"Welche drei Aggregatzustände gibt es?", a:"fest, flüssig und gasförmig", w:["hart, weich und warm","Eis, Wasser und Luft"], e:"Aggregatzustand bedeutet Zustandsform."},
+  {t:"Aggregatzustände", q:"Welche Aussage zu den Umwandlungen ist vollständig richtig?", a:"Schmelzen, Erstarren, Verdampfen und Kondensieren.", w:["Schmelzen, Filtrieren, Sieden und Mischen.","Lösen, Trennen, Abkühlen und Rühren."], e:"fest ↔ flüssig: Schmelzen/Erstarren; flüssig ↔ gasförmig: Verdampfen/Kondensieren.", v:"phase"},
+  {t:"Wasser", q:"Welche Schmelz- und Siedetemperatur hat Wasser bei Normaldruck?", a:"0 °C und 100 °C", w:["10 °C und 90 °C","−100 °C und 0 °C"], e:"Bei 0 °C schmilzt oder erstarrt Wasser; bei 100 °C siedet oder kondensiert es."},
+  {t:"Stoffeigenschaften", q:"Wozu dient ein Stoff-Steckbrief?", a:"Er sammelt Stoffeigenschaften, damit man Stoffe vergleichen und bestimmen kann.", w:["Er zeigt nur den Namen eines Stoffes.","Er beschreibt ausschließlich die Farbe eines Stoffes."], e:"Dazu gehören zum Beispiel Farbe, Löslichkeit, Magnetismus und Schmelztemperatur."},
+  {t:"Teilchenmodell", q:"Warum löst sich Zucker auch ohne Umrühren?", a:"Wasser- und Zuckerteilchen bewegen sich ständig und verteilen sich.", w:["Der Zucker verschwindet, weil er leichter als Wasser ist.","Das Wasser zieht den Zucker nur durch die Schwerkraft nach oben."], e:"Rühren beschleunigt das Verteilen, ist aber nicht die Ursache der Teilchenbewegung."},
+  {t:"Teilchenmodell", q:"Warum kann man Duftöl nach einiger Zeit im ganzen Raum riechen?", a:"Geruchsteilchen bewegen sich selbstständig, verteilen sich in der Luft und gelangen in die Nase.", w:["Der Geruch entsteht gleichzeitig überall im Raum.","Nur starke Luftströmungen können Geruch verteilen."], e:"Zwischen den Luftteilchen gibt es Zwischenräume."},
+  {t:"Teilchenmodell", q:"In welcher Reihenfolge nimmt die Geschwindigkeit der Teilchen zu?", a:"fest → flüssig → gasförmig", w:["gasförmig → flüssig → fest","flüssig → fest → gasförmig"], e:"Im Feststoff schwingen Teilchen nur wenig; im Gas bewegen sie sich besonders schnell."},
+  {t:"Kerze", q:"Wo findet man bei einer brennenden Kerze die drei Aggregatzustände?", a:"Fest im Kerzenkörper, flüssig als Wachs am Docht, gasförmig als Wachsdampf in der Flamme.", w:["Fest in der Flamme, flüssig im Kerzenkörper, gasförmig am Boden.","Alle Teile der Kerze sind nur fest."], e:"Die brennende Kerze zeigt alle drei Zustandsformen.", v:"candle"}
+];
+
+let quiz = [], index = 0, points = 0, mistakes = [], locked = false;
+
+const $ = id => document.getElementById(id);
+const shuffle = arr => {
+  const a = [...arr];
+  for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+};
+
+function startQuiz(){
+  const n = Number($("count").value);
+  quiz = shuffle(questions).slice(0,n);
+  index=0; points=0; mistakes=[]; locked=false;
+  $("start").classList.add("hidden");
+  $("result").classList.add("hidden");
+  $("quiz").classList.remove("hidden");
+  renderQuestion();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderQuestion(){
+  locked=false;
+  const item=quiz[index];
+  $("counter").textContent=`Frage ${index+1} von ${quiz.length}`;
+  $("score").textContent=`${points} ${points===1?"Punkt":"Punkte"}`;
+  $("bar").style.width=`${(index/quiz.length)*100}%`;
+  $("topic").textContent=item.t;
+  $("question").textContent=item.q;
+  $("feedback").className="feedback hidden";
+  $("feedback").innerHTML="";
+  $("nextBtn").classList.add("hidden");
+  const vis=$("visual");
+  if(item.v){ vis.innerHTML=visuals[item.v]; vis.classList.remove("hidden"); }
+  else { vis.innerHTML=""; vis.classList.add("hidden"); }
+
+  const answers=shuffle([item.a,...item.w]);
+  const box=$("answers");
+  box.innerHTML="";
+  answers.forEach(text=>{
+    const b=document.createElement("button");
+    b.className="answer";
+    b.textContent=text;
+    b.addEventListener("click",()=>choose(b,text,item));
+    box.appendChild(b);
+  });
+}
+
+function choose(button,text,item){
+  if(locked) return;
+  locked=true;
+  const all=[...document.querySelectorAll(".answer")];
+  all.forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===item.a) b.classList.add("correct");
+  });
+
+  const correct=text===item.a;
+  if(correct){
+    points++;
+    $("feedback").className="feedback ok";
+    $("feedback").innerHTML=`Richtig!<span class="explain">${item.e}</span>`;
+  }else{
+    button.classList.add("wrong");
+    mistakes.push({q:item.q, chosen:text, right:item.a});
+    $("feedback").className="feedback bad";
+    $("feedback").innerHTML=`Leider falsch.<span class="explain">Richtig ist: ${item.a}<br>${item.e}</span>`;
+  }
+  $("score").textContent=`${points} ${points===1?"Punkt":"Punkte"}`;
+  $("feedback").classList.remove("hidden");
+  $("nextBtn").textContent=index===quiz.length-1?"Ergebnis anzeigen":"Nächste Frage";
+  $("nextBtn").classList.remove("hidden");
+}
+
+function next(){
+  index++;
+  if(index<quiz.length){
+    renderQuestion();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }else showResult();
+}
+
+function showResult(){
+  $("quiz").classList.add("hidden");
+  $("result").classList.remove("hidden");
+  const pct=Math.round(points/quiz.length*100);
+  $("finalScore").textContent=`${points} / ${quiz.length}`;
+  let text = pct>=90 ? "Sehr stark – das sitzt schon richtig gut!"
+           : pct>=70 ? "Gut gemacht – nur wenige Themen noch einmal ansehen."
+           : pct>=50 ? "Guter Anfang – mit einer zweiten Runde wird es deutlich besser."
+           : "Kein Problem – erst die Themenkarten lesen und danach noch einmal starten.";
+  $("finalText").textContent=`${pct} % richtig. ${text}`;
+  $("bar").style.width="100%";
+
+  const m=$("mistakes");
+  if(!mistakes.length){
+    m.innerHTML="<p><strong>Keine Fehler – großartig!</strong></p>";
+  }else{
+    m.innerHTML="<h3>Diese Fragen noch einmal ansehen</h3>"+mistakes.map(x=>
+      `<div class="mistake"><b>${escapeHtml(x.q)}</b><span class="tiny">Deine Antwort: ${escapeHtml(x.chosen)}</span><br><span>Richtig: ${escapeHtml(x.right)}</span></div>`
+    ).join("");
+  }
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+}
+
+$("startBtn").addEventListener("click",startQuiz);
+$("nextBtn").addEventListener("click",next);
+$("againBtn").addEventListener("click",()=>{ $("result").classList.add("hidden"); $("start").classList.remove("hidden"); window.scrollTo({top:0,behavior:"smooth"}); });
+</script>
+</body>
+</html>
