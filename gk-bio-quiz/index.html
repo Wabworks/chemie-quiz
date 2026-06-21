@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bio & Gemeinschaftskunde Quiz – Klasse 7</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;--card:#fff;--text:#18202a;--muted:#687385;--accent:#2f6fed;--accent2:#19a974;--bad:#d64545;--line:#dde3ee;--shadow:0 12px 30px rgba(20,35,60,.10);
+    }
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 280px);color:var(--text);}
+    .wrap{max-width:900px;margin:0 auto;padding:18px 14px 40px}.hero{padding:22px 0 12px}.eyebrow{font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}h1{font-size:clamp(28px,8vw,48px);line-height:1.05;margin:8px 0 10px}.sub{font-size:17px;color:var(--muted);line-height:1.45;margin:0 0 14px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:18px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.btn{border:0;border-radius:16px;padding:13px 15px;font-weight:800;font-size:16px;cursor:pointer;background:var(--accent);color:#fff;box-shadow:0 8px 16px rgba(47,111,237,.22)}.btn.secondary{background:#fff;color:var(--text);border:1px solid var(--line);box-shadow:none}.btn.good{background:var(--accent2)}.btn:disabled{opacity:.55;cursor:not-allowed}.pillrow{display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-weight:700;cursor:pointer;color:var(--text)}.pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}.progress{height:12px;border-radius:99px;background:#e3e9f4;overflow:hidden}.bar{height:100%;width:0;background:var(--accent2);transition:.25s}.questionTop{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-weight:800}.qtext{font-size:22px;line-height:1.35;font-weight:850;margin:18px 0}.blank{display:inline-block;min-width:120px;border-bottom:3px solid var(--text);height:1.2em;vertical-align:baseline}.answers{display:grid;gap:10px}.answer{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:16px;padding:14px 14px;font-size:17px;font-weight:750;cursor:pointer;color:var(--text)}.answer:hover{border-color:#b7c4dc}.answer.correct{background:#e9fff4;border-color:#56c596}.answer.wrong{background:#fff0f0;border-color:#e28a8a}.feedback{font-weight:800;margin-top:12px;min-height:28px}.feedback.good{color:var(--accent2)}.feedback.bad{color:var(--bad)}.small{font-size:14px;color:var(--muted);line-height:1.45}.summary{font-size:20px;line-height:1.5}.hide{display:none}.footer{font-size:13px;color:var(--muted);text-align:center;margin-top:20px}.checkbox{display:flex;align-items:center;gap:10px;font-weight:800}.checkbox input{width:20px;height:20px}.tag{display:inline-block;border-radius:999px;background:#edf3ff;color:#315fbd;padding:4px 9px;font-size:13px;font-weight:800;margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="eyebrow">Klasse 7 · Lernquiz</div>
+      <h1>Bio & Gemeinschaftskunde Quiz</h1>
+      <p class="sub">Lückentext-Quiz zu Fotosynthese, Datenschutz, Deepfakes, Nachrichten, Medien und Social Media. Handyfreundlich für WhatsApp.</p>
+    </section>
+
+    <section id="setup" class="card">
+      <h2>Quiz starten</h2>
+      <p class="small">Wähle Thema und Umfang. Die Fragen werden gemischt.</p>
+      <div class="card" style="box-shadow:none">
+        <strong>Themen</strong>
+        <div class="pillrow" style="margin-top:10px">
+          <button class="pill active" data-topic="all">Alles</button>
+          <button class="pill" data-topic="bio">Bio</button>
+          <button class="pill" data-topic="gk">Gemeinschaftskunde</button>
+          <button class="pill" data-topic="deepfake">Deepfakes</button>
+          <button class="pill" data-topic="news">Nachrichten & Medien</button>
+        </div>
+      </div>
+      <div class="card" style="box-shadow:none">
+        <strong>Anzahl Fragen</strong>
+        <div class="pillrow" style="margin-top:10px">
+          <button class="pill active" data-count="10">10</button>
+          <button class="pill" data-count="15">15</button>
+          <button class="pill" data-count="25">25</button>
+          <button class="pill" data-count="all">Alle</button>
+        </div>
+      </div>
+      <label class="checkbox"><input id="instant" type="checkbox" checked> Sofort Feedback anzeigen</label>
+      <div style="height:14px"></div>
+      <button class="btn" id="startBtn">Los geht’s</button>
+    </section>
+
+    <section id="quiz" class="card hide">
+      <div class="questionTop"><span id="qNum"></span><span id="score"></span></div>
+      <div class="progress" aria-label="Fortschritt"><div class="bar" id="bar"></div></div>
+      <div id="tag" class="tag"></div>
+      <div class="qtext" id="qText"></div>
+      <div class="answers" id="answers"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="grid" style="margin-top:14px">
+        <button class="btn secondary" id="showBtn">Lösung zeigen</button>
+        <button class="btn good" id="nextBtn" disabled>Weiter</button>
+      </div>
+    </section>
+
+    <section id="done" class="card hide">
+      <h2>Fertig 🎉</h2>
+      <div class="summary" id="result"></div>
+      <div class="grid" style="margin-top:16px">
+        <button class="btn" id="againBtn">Nochmal spielen</button>
+        <button class="btn secondary" id="reviewBtn">Falsche wiederholen</button>
+      </div>
+    </section>
+    <div class="footer">Tipp: Link einfach per WhatsApp teilen. Läuft direkt im Browser.</div>
+  </div>
+
+<script>
+const DATA = [
+  {t:'bio', tag:'Bio · Bedeutung', q:'Die Fotosynthese ist für das Leben auf der Erde sehr _____.', a:'wichtig', o:['wichtig','selten','gefährlich','laut']},
+  {t:'bio', tag:'Bio · Bedeutung', q:'Bei der Fotosynthese stellen Pflanzen ihre eigenen _____ her.', a:'Nährstoffe', o:['Nährstoffe','Geräusche','Blüten','Wurzeln']},
+  {t:'bio', tag:'Bio · Bedeutung', q:'Pflanzen produzieren bei der Fotosynthese _____, den Menschen und Tiere zum Atmen brauchen.', a:'Sauerstoff', o:['Sauerstoff','Kohlenstoffdioxid','Wasser','Stärke']},
+  {t:'bio', tag:'Bio · Begriff', q:'Das Wort Fotosynthese setzt sich aus „photo“ und „_____“ zusammen.', a:'synthesis', o:['synthesis','system','sonne','stärke']},
+  {t:'bio', tag:'Bio · Ort', q:'Die Fotosynthese läuft in den grünen _____ der Pflanzen ab.', a:'Blättern', o:['Blättern','Wurzeln','Blüten','Samen']},
+  {t:'bio', tag:'Bio · Ort', q:'Der grüne Farbstoff in den Blättern heißt _____.', a:'Chlorophyll', o:['Chlorophyll','Traubenzucker','Sauerstoff','Stärke']},
+  {t:'bio', tag:'Bio · Ort', q:'Chlorophyll ermöglicht es der Pflanze, das _____ aufzunehmen.', a:'Sonnenlicht', o:['Sonnenlicht','Eis','Salz','Getreide']},
+  {t:'bio', tag:'Bio · Voraussetzungen', q:'Damit Fotosynthese stattfinden kann, benötigt die Pflanze Lichtenergie, Wasser und _____.', a:'Kohlenstoffdioxid', o:['Kohlenstoffdioxid','Sauerstoff','Fruchtzucker','Getreidekörner']},
+  {t:'bio', tag:'Bio · Voraussetzungen', q:'Das Wasser nimmt die Pflanze über ihre _____ aus dem Boden auf.', a:'Wurzeln', o:['Wurzeln','Blüten','Früchte','Samen']},
+  {t:'bio', tag:'Bio · Voraussetzungen', q:'Das Kohlenstoffdioxid stammt aus der _____.', a:'Luft', o:['Luft','Erde','Wurzel','Sonne']},
+  {t:'bio', tag:'Bio · Vorgang', q:'Kohlenstoffdioxid + Wasser + Sonnenlicht → Traubenzucker + _____.', a:'Sauerstoff', o:['Sauerstoff','Chlorophyll','Stärke','Fruchtzucker']},
+  {t:'bio', tag:'Bio · Produkte', q:'Mit Hilfe von Lichtenergie stellt die Pflanze aus Wasser und Kohlenstoffdioxid _____ her.', a:'Traubenzucker', o:['Traubenzucker','Sauerstoff','Getreide','Chlorophyll']},
+  {t:'bio', tag:'Bio · Produkte', q:'Traubenzucker dient der Pflanze als wichtige _____.', a:'Energiequelle', o:['Energiequelle','Schutzschicht','Atemluft','Giftquelle']},
+  {t:'bio', tag:'Bio · Stärke', q:'Ein Teil des Traubenzuckers wird zu _____ umgewandelt und gespeichert.', a:'Stärke', o:['Stärke','Licht','Luft','Sauerstoff']},
+  {t:'bio', tag:'Bio · Stärke', q:'Fruchtzucker ist in vielen _____ enthalten.', a:'Früchten', o:['Früchten','Steinen','Wolken','Blättern']},
+  {t:'bio', tag:'Bio · Mensch und Tier', q:'Der bei der Fotosynthese entstehende Sauerstoff ist _____ für Menschen und Tiere.', a:'lebensnotwendig', o:['lebensnotwendig','unwichtig','schädlich','unsichtbar']},
+  {t:'bio', tag:'Bio · Mensch und Tier', q:'Alle Lebewesen sind direkt oder indirekt auf die _____ angewiesen.', a:'Fotosynthese', o:['Fotosynthese','Dunkelheit','Kälte','Essigsäure']},
+
+  {t:'deepfake', tag:'GK · Datenschutz', q:'Das Thema lautet: Datenschutz – Wem gehört mein _____?', a:'Bild', o:['Bild','Heft','Stift','Wasser']},
+  {t:'deepfake', tag:'GK · Deepfakes', q:'Deepfakes sind gefälschte Videos, Bilder oder Stimmen, die mit Hilfe von _____ erstellt werden.', a:'KI', o:['KI','Papier','Radio','Wasser']},
+  {t:'deepfake', tag:'GK · Deepfakes', q:'Bei Deepfakes kann ein Gesicht in ein Video _____ werden.', a:'eingearbeitet', o:['eingearbeitet','weggeworfen','ausgedruckt','geschnitten']},
+  {t:'deepfake', tag:'GK · Deepfakes', q:'Bei Deepfakes kann auch eine Stimme _____ werden.', a:'verändert', o:['verändert','gegessen','gezeichnet','gewogen']},
+  {t:'deepfake', tag:'GK · Deepfakes', q:'Ein Problem ist, dass man denkt, etwas sei passiert, obwohl es nicht _____.', a:'stimmt', o:['stimmt','glänzt','wächst','schläft']},
+  {t:'deepfake', tag:'GK · Fragen', q:'Eine wichtige Frage lautet: Wie _____ ist das Internet?', a:'nützlich', o:['nützlich','grün','schwer','rund']},
+  {t:'deepfake', tag:'GK · Fragen', q:'Eine wichtige Frage lautet: Wie viel Macht haben die _____?', a:'Medien', o:['Medien','Pflanzen','Tiere','Wurzeln']},
+  {t:'deepfake', tag:'GK · Fragen', q:'Eine wichtige Frage lautet: Wie gehen Medien mit unseren _____ um?', a:'Daten', o:['Daten','Blättern','Schuhen','Wurzeln']},
+  {t:'deepfake', tag:'GK · Fragen', q:'Eine wichtige Frage lautet: Welche rechtlichen _____ gibt es dabei?', a:'Sätze', o:['Sätze','Bilder','Tiere','Farben']},
+  {t:'deepfake', tag:'GK · Fragen', q:'Eine wichtige Frage lautet: Wie entstehen _____?', a:'Nachrichten', o:['Nachrichten','Wurzeln','Früchte','Pupillen']},
+  {t:'deepfake', tag:'GK · Fragen', q:'Eine wichtige Frage lautet: Wie _____ sind die Medien?', a:'glaubwürdig', o:['glaubwürdig','salzig','rund','lautlos']},
+
+  {t:'news', tag:'GK · Internet', q:'Das Internet ist ein weltweites _____ aus unzähligen Computern und anderen Geräten.', a:'Netzwerk', o:['Netzwerk','Laubblatt','Sauerstoff','Heft']},
+  {t:'news', tag:'GK · Internet', q:'Diese Geräte sind miteinander _____ und können Informationen austauschen.', a:'verbunden', o:['verbunden','verboten','verbraucht','vergrößert']},
+  {t:'news', tag:'GK · Internet', q:'Wenn du eine Internetseite aufrufst, gibst du eine Adresse in den _____ ein.', a:'Browser', o:['Browser','Boden','Blatt','Stamm']},
+  {t:'news', tag:'GK · Internet', q:'Die Daten einer Internetseite werden in kleine _____ aufgeteilt.', a:'Datenpakete', o:['Datenpakete','Getreidekörner','Laubblätter','Bilderrahmen']},
+  {t:'news', tag:'GK · Internet', q:'Server sind leistungsstarke Computer, die Daten speichern und _____ beantworten.', a:'Anfragen', o:['Anfragen','Wurzeln','Pausen','Früchte']},
+  {t:'news', tag:'GK · Internet', q:'Nicht alle _____ im Internet sind richtig oder vertrauenswürdig.', a:'Informationen', o:['Informationen','Blüten','Blätter','Tiere']},
+  {t:'news', tag:'GK · Nachrichten', q:'Journalistinnen und Journalisten nutzen die 7 W-Fragen, damit Nachrichten _____ sind.', a:'vollständig', o:['vollständig','unsichtbar','nass','rund']},
+  {t:'news', tag:'GK · Nachrichten', q:'Eine der 7 W-Fragen lautet: Wer, Was, Wann, Wo, Wie, Warum und Woher stammt die _____.', a:'Information', o:['Information','Wurzel','Blume','Stärke']},
+  {t:'news', tag:'GK · Nachrichten', q:'Fake News erkennt man besser, wenn man Informationen _____.', a:'prüft', o:['prüft','versteckt','isst','malt']},
+  {t:'news', tag:'GK · Nachrichten', q:'Bei Fake News sollte man mehrere Quellen _____.', a:'vergleichen', o:['vergleichen','wegwerfen','gießen','füttern']},
+  {t:'news', tag:'GK · Nachrichten', q:'Man sollte nicht alles sofort _____.', a:'weiterleiten', o:['weiterleiten','einpflanzen','atmen','speichern']},
+
+  {t:'gk', tag:'GK · Social Media', q:'Die Frage war: Sollten Social Media für unter _____-Jährige verboten werden?', a:'16', o:['16','6','60','26']},
+  {t:'gk', tag:'GK · Social Media', q:'Contra: Auf Social Media kann man den Umgang mit Social Media _____.', a:'erlernen', o:['erlernen','vergessen','verbieten','ausdrucken']},
+  {t:'gk', tag:'GK · Social Media', q:'Contra: Auch _____ kann über Social Media gelingen.', a:'Lernen', o:['Lernen','Schlafen','Essen','Schneiden']},
+  {t:'gk', tag:'GK · Social Media', q:'Pro: Social Media kann zu Ängsten und Sucht _____ führen.', a:'führen', o:['führen','leuchten','wachsen','regnen']},
+  {t:'gk', tag:'GK · Social Media', q:'Pro: Es wird oft nur _____ gezeigt.', a:'Gutes', o:['Gutes','Wasser','Papier','Chlorophyll']},
+  {t:'gk', tag:'GK · Social Media', q:'Pro: Unter 16 ist das Gehirn noch in der _____.', a:'Entwicklung', o:['Entwicklung','Fotosynthese','Nachricht','Wurzel']}
+];
+
+let topic='all', count='10', pool=[], current=0, score=0, wrong=[], answered=false;
+const $=id=>document.getElementById(id);
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function setActive(selector, attr, cb){document.querySelectorAll(selector).forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll(selector).forEach(x=>x.classList.remove('active')); b.classList.add('active'); cb(b.dataset[attr]);}));}
+setActive('[data-topic]','topic',v=>topic=v); setActive('[data-count]','count',v=>count=v);
+function start(customPool){let base=customPool || DATA.filter(x=>topic==='all'||x.t===topic|| (topic==='gk' && ['gk','deepfake','news'].includes(x.t)) ); pool=shuffle(base); if(count!=='all'&&!customPool) pool=pool.slice(0, Number(count)); current=0;score=0;wrong=[]; $('setup').classList.add('hide');$('done').classList.add('hide');$('quiz').classList.remove('hide'); showQ();}
+function showQ(){answered=false; const item=pool[current]; $('qNum').textContent=`Frage ${current+1} von ${pool.length}`; $('score').textContent=`Punkte: ${score}`; $('bar').style.width=`${(current)/pool.length*100}%`; $('tag').textContent=item.tag; $('qText').innerHTML=item.q.replace('_____', '<span class="blank"></span>'); $('feedback').textContent=''; $('feedback').className='feedback'; $('nextBtn').disabled=true; $('answers').innerHTML=''; shuffle(item.o).forEach(opt=>{const b=document.createElement('button'); b.className='answer'; b.textContent=opt; b.onclick=()=>choose(b,opt); $('answers').appendChild(b);});}
+function choose(btn,opt){if(answered) return; answered=true; const item=pool[current]; const ok=opt===item.a; document.querySelectorAll('.answer').forEach(b=>{b.disabled=true; if(b.textContent===item.a) b.classList.add('correct');}); if(ok){score++; $('feedback').textContent='Richtig!'; $('feedback').classList.add('good');} else {btn.classList.add('wrong'); wrong.push(item); $('feedback').textContent=`Fast – richtig ist: ${item.a}`; $('feedback').classList.add('bad');} $('score').textContent=`Punkte: ${score}`; $('nextBtn').disabled=false;}
+$('showBtn').onclick=()=>{if(answered)return; const item=pool[current]; answered=true; wrong.push(item); document.querySelectorAll('.answer').forEach(b=>{b.disabled=true; if(b.textContent===item.a) b.classList.add('correct');}); $('feedback').textContent=`Lösung: ${item.a}`; $('feedback').classList.add('bad'); $('nextBtn').disabled=false;};
+$('nextBtn').onclick=()=>{current++; if(current>=pool.length) done(); else showQ();};
+function done(){ $('quiz').classList.add('hide'); $('done').classList.remove('hide'); $('bar').style.width='100%'; const pct=Math.round(score/pool.length*100); let msg = pct>=85?'Super gemacht!':pct>=60?'Gut, aber ein bisschen Wiederholung hilft.':'Nochmal üben – das wird.'; $('result').innerHTML=`Du hast <strong>${score} von ${pool.length}</strong> Punkten erreicht (${pct}%).<br>${msg}`; $('reviewBtn').disabled=wrong.length===0;}
+$('startBtn').onclick=()=>start(); $('againBtn').onclick=()=>{ $('done').classList.add('hide'); $('setup').classList.remove('hide');}; $('reviewBtn').onclick=()=>{ if(wrong.length) start(wrong); };
+</script>
+</body>
+</html>
